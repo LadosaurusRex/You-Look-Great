@@ -4,6 +4,12 @@ import sys
 import time
 from picamera2 import Picamera2, Preview
 
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(4,GPIO.OUT)
+
 
 picam2 = Picamera2()
 config = picam2.create_still_configuration(main={"size": (640, 360), "format": "BGR888"}, encode="main") #1280, 720
@@ -25,6 +31,7 @@ no_face_count = 0
 #set the number of frames ignored before running the facial detection
 frame_rate = 5
 
+GPIO.output(4,GPIO.LOW)
 
 while True:
     time.sleep(1)
@@ -52,10 +59,12 @@ while True:
     if len(face_locations) > 0:
         face_detected = "Yes"
 
-        #time.sleep(1)
+        time.sleep(1)
 
         sign_on = 1
         print(time.strftime('%H:%M:%S',time.localtime()),"sign_on? =  " + str(sign_on))
+        
+        GPIO.output(4,GPIO.HIGH)
 
     else:
         face_detected = "Non"
@@ -64,17 +73,16 @@ while True:
             sign_on = 0
             print(time.strftime('%H:%M:%S',time.localtime()),"sign_on? =  " + str(sign_on))
             no_face_count = 0
+            
+            GPIO.output(4,GPIO.LOW)
 
 
     # Display via text if there is a face detected ,,
-#        print("Faces Detected? =  " + str(face_detected), end='\r',)
-    print(time.strftime('%H:%M:%S',time.localtime()),"sign_on? =  " + str(sign_on))
+    #        print("Faces Detected? =  " + str(face_detected), end='\r',)
+    # print(time.strftime('%H:%M:%S',time.localtime()),"sign_on? =  " + str(sign_on))
 
 
     # Wait for Enter key to stop
     # if cv2.waitKey(25) == 13:
     #    break
 
-# Release everything if job is finished
-# cap.release()
-# cv2.destroyAllWindows()
